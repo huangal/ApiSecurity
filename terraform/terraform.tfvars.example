@@ -1,0 +1,16 @@
+# Copy to terraform.tfvars and fill in values before running plan/apply.
+# Do NOT commit terraform.tfvars to source control.
+
+aws_region            = "us-east-1"
+environment           = "prod"
+project               = "oauth-m2m"
+cognito_domain_prefix = "my-company-auth"           # globally unique
+acm_certificate_arn   = "arn:aws:acm:us-east-1:123456789012:certificate/xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
+truststore_s3_version = null                         # set after uploading truststore.pem
+lambda_zip_path       = "../lambda/token_proxy.zip"
+waf_rate_limit        = 100
+
+tags = {
+  Owner      = "platform-team"
+  CostCenter = "engineering"
+}

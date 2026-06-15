@@ -94,10 +94,10 @@ Client                 API Gateway          Lambda Authorizer       Lambda Proxy
   │                         │◀── Allow IAM policy ──-│                   │                           │
   │                         │    (or 403 Deny)       │                   │                           │
   │                         │                        │                   │                           │
-  │                         │── ③ invoke Lambda proxy────────────────▶   │                           │
+  │                         │── ③ invoke Lambda proxy──────────---──────▶│                           │
   │                         │                        │                   │ decode Basic Auth         │
   │                         │                        │                   │ extract id + secret       │ 
-  │                         │                        │                   │── ④ POST /oauth2/token-▶
+  │                         │                        │                   │── ④ POST /oauth2/token----▶
   │                         │                        │                   │   X-Internal-Token:       │
   │                         │                        │                   │   <waf-secret>            │
   │                         │                        │                   │           WAF checks      │

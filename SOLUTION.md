@@ -37,9 +37,9 @@ This solution enables a **Machine-to-Machine (M2M) client** to obtain an OAuth2 
 │ AWS Cloud — us-east-1                                                       │
 │                                                                             │
 │  ┌──────────────────┐    ┌───────────────────┐    ┌──────────────────────┐  │
-│  │   API Gateway    │    │ Lambda Authorizer  │    │  Lambda Token Proxy │  │
-│  │  POST /token     │───▶│ (mTLS cert DN      │───▶│  Decode Basic Auth  │  │
-│  │  mTLS endpoint   │    │  whitelist check)  │    │  Call Cognito token │  │
+│  │   API Gateway    │    │ Lambda Authorizer │    │  Lambda Token Proxy  │  │
+│  │  POST /token     │───▶│ (mTLS cert DN     │───▶│  Decode Basic Auth   │  │
+│  │  mTLS endpoint   │    │  whitelist check) │    │  Call Cognito token  │  │
 │  └──────────────────┘    └───────────────────┘    └──────────┬───────────┘  │
 │           ▲                                                   │             │
 │           │                                        ┌──────────▼───────────┐ │
@@ -81,30 +81,30 @@ This solution enables a **Machine-to-Machine (M2M) client** to obtain an OAuth2 
 ### Step-by-step request flow
 
 ```
-Client                 API Gateway          Lambda Authorizer     Lambda Proxy         Cognito User Pool
-  │                        │                         │                   │                          │
-  │── POST /token ─────────▶                         │                   │                          │
-  │   mTLS handshake        │                        │                   │                          │
-  │   Authorization: Basic  │                        │                   │                          │
-  │   <base64(id:secret)>   │                        │                   │                          │
-  │                         │── ② invoke authorizer-▶│                  │                          │
-  │                         │   clientCert.subjectDN │                   │                          │
-  │                         │                        │ check DN vs       │                          │
-  │                         │                        │ trusted CA list   │                          │
-  │                         │◀── Allow IAM policy ──-│                   │                          │
-  │                         │    (or 403 Deny)       │                   │                          │
-  │                         │                        │                   │                          │
-  │                         │── ③ invoke Lambda proxy────────────────▶  │                          │
-  │                         │                        │                   │ decode Basic Auth        │
-  │                         │                        │                   │ extract id + secret      │ 
+Client                 API Gateway          Lambda Authorizer       Lambda Proxy             Cognito User Pool
+  │                         │                        │                   │                           │
+  │── POST /token ─────────▶                         │                   │                           │
+  │   mTLS handshake        │                        │                   │                           │
+  │   Authorization: Basic  │                        │                   │                           │
+  │   <base64(id:secret)>   │                        │                   │                           │
+  │                         │── ② invoke authorizer-▶│                   │                           │
+  │                         │   clientCert.subjectDN │                   │                           │
+  │                         │                        │ check DN vs       │                           │
+  │                         │                        │ trusted CA list   │                           │
+  │                         │◀── Allow IAM policy ──-│                   │                           │
+  │                         │    (or 403 Deny)       │                   │                           │
+  │                         │                        │                   │                           │
+  │                         │── ③ invoke Lambda proxy────────────────▶   │                           │
+  │                         │                        │                   │ decode Basic Auth         │
+  │                         │                        │                   │ extract id + secret       │ 
   │                         │                        │                   │── ④ POST /oauth2/token-▶
   │                         │                        │                   │   X-Internal-Token:       │
   │                         │                        │                   │   <waf-secret>            │
   │                         │                        │                   │           WAF checks      │
   │                         │                        │                   │           header ✓        │
-  │                         │                        │                   │◀── ⑤ JWT access_token─---│
-  │                         │◀── ⑥ token response ──────────────────────│                           │
-  │◀── ⑥ token response ───│                        │                   │                           │
+  │                         │                        │                   │◀── ⑤ JWT access_token─----│
+  │                         │◀── ⑥ token response ──────────────────────-│                           │
+  │◀── ⑥ token response ─── │                        │                   │                           │
 ```
 
 ### Steps explained
